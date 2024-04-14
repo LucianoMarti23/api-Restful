@@ -17,13 +17,13 @@ public class MapUtils {
 
     public static <T, U> List<U> getAll(List<T> lista, Class<U> objetoClase) {
 
-        try {
+
+
             return lista.stream()
                     .map(entity -> modelMapper.map(entity, objetoClase))
                     .collect(Collectors.toList());
-        } catch (Exception e) {
-            throw new RuntimeException("Error al mapear la lista: " + e.getMessage());
-        }
+
+
     }
     public static <T, U> U mapEntityToDTO(T entity, Class<U> entityDtoClass) {
         //
@@ -37,5 +37,8 @@ public class MapUtils {
         return modelMapper.map(dto,entityClass);
 
     }
+
+
+
 
 }

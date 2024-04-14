@@ -62,12 +62,10 @@ public class PacienteServiceImpl implements I_PacienteService {
                 throw new PacienteAlreadyExist("Paciente with DNI " + pacienteDto.getDniPaciente() + " already exists.");
             }
 
-            try {
+
                 pacientes pacienteEntity = MapUtils.mapDtoToEntity(pacienteDto, pacientes.class);
                 pacienteRepository.save(pacienteEntity);
-            } catch (PacienteAlreadyExist e) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
-            }
+
     }
 
 
@@ -80,6 +78,7 @@ public class PacienteServiceImpl implements I_PacienteService {
 
         pacientes existingPaciente = optionalPacienteExisting.orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "Paciente with ID " + dni + " not found"));
+
 
 
         if (optionalPacienteDtoExisting.isEmpty()) {
@@ -104,10 +103,11 @@ public class PacienteServiceImpl implements I_PacienteService {
     @Override
     public void eliminarPaciente(int dni) {
         Optional<pacientes> optionalPaciente = pacienteRepository.findByDniPaciente(dni);
-        if (optionalPaciente.isPresent()) {
-            pacienteRepository.deleteById(optionalPaciente.get().getId());
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Paciente with DNI " + dni + " not found");
+
+        pacientes existspaciente = optionalPaciente.orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND , "Paciente with DNI NOT FOUND"));
+
+        pacienteRepository.deleteById(existspaciente.getId());
         }
     }
 
@@ -117,7 +117,9 @@ public class PacienteServiceImpl implements I_PacienteService {
 
 
 
-}
+
+
+
 
 
 
