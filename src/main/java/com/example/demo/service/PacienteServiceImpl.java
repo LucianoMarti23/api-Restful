@@ -2,7 +2,6 @@ package com.example.demo.service;
 
 import com.example.demo.dto.PacienteDTO;
 
-import com.example.demo.exceptions.PacienteAlreadyExist;
 import com.example.demo.utils.MapUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -42,15 +41,11 @@ public class PacienteServiceImpl implements I_PacienteService {
     public PacienteDTO getPacientebyDNI(int dni) {
         Optional<pacientes> optionalPaciente = pacienteRepository.findByDniPaciente(dni);
 
-        if (optionalPaciente.isPresent()) {
 
-          return MapUtils.mapEntityToDTO(optionalPaciente.get(),PacienteDTO.class);
+        pacientes existingPaciente = optionalPaciente.orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Paciente with ID " + dni + " not found"));
 
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Paciente with DNI " + dni + " not found");
-        }
-
-
+        return MapUtils.mapEntityToDTO(existingPaciente,PacienteDTO.class);
 
     }
 
@@ -58,12 +53,13 @@ public class PacienteServiceImpl implements I_PacienteService {
     public void guardarPaciente(PacienteDTO pacienteDto) {
             Optional<pacientes> optionalPaciente = pacienteRepository.findByDniPaciente(pacienteDto.getDniPaciente());
 
-            if (optionalPaciente.isPresent()) {
-                throw new PacienteAlreadyExist("Paciente with DNI " + pacienteDto.getDniPaciente() + " already exists.");
-            }
+
+        optionalPaciente.ifPresent(paciente -> {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Paciente already exists.");
+        });
 
 
-                pacientes pacienteEntity = MapUtils.mapDtoToEntity(pacienteDto, pacientes.class);
+        pacientes pacienteEntity = MapUtils.mapDtoToEntity(pacienteDto, pacientes.class);
                 pacienteRepository.save(pacienteEntity);
 
     }
