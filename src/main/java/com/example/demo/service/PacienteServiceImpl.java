@@ -62,52 +62,54 @@ public class PacienteServiceImpl implements I_PacienteService {
                 throw new PacienteAlreadyExist("Paciente with DNI " + pacienteDto.getDniPaciente() + " already exists.");
             }
 
-            try {
+
                 pacientes pacienteEntity = MapUtils.mapDtoToEntity(pacienteDto, pacientes.class);
                 pacienteRepository.save(pacienteEntity);
-            } catch (PacienteAlreadyExist e) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
-            }
+
     }
 
 
 
 
     @Override
-    public String updatearPaciente(int dni, PacienteDTO nuevoPaciente) {
+    public String updatearPaciente(int dni, PacienteDTO pacienteExistt) {
         Optional<pacientes> optionalPacienteExisting = pacienteRepository.findByDniPaciente(dni);
-        Optional<pacientes> optionalPacienteDtoExisting = pacienteRepository.findByDniPaciente(nuevoPaciente.getDniPaciente());
+
+
 
         pacientes existingPaciente = optionalPacienteExisting.orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "Paciente with ID " + dni + " not found"));
 
+        Optional<pacientes> optionalPacienteDtoExisting = pacienteRepository.findByDniPaciente(pacienteExistt.getDniPaciente());
 
-        if (optionalPacienteDtoExisting.isEmpty()) {
 
-            existingPaciente.setApellido(nuevoPaciente.getApellido());
-            existingPaciente.setNombre(nuevoPaciente.getNombre());
-            existingPaciente.setDomicilio(nuevoPaciente.getDomicilio());
-            existingPaciente.setDniPaciente(nuevoPaciente.getDniPaciente());
-            existingPaciente.setLocalidad(nuevoPaciente.getLocalidad());
-            existingPaciente.setCelular(nuevoPaciente.getCelular());
-            existingPaciente.setProvincia(nuevoPaciente.getProvincia());
-            existingPaciente.setEmail(nuevoPaciente.getEmail());
-            existingPaciente.setTelefono(nuevoPaciente.getTelefono());
-
-            pacienteRepository.save(existingPaciente);
-
-            return "Paciente Actualizado Correctamente";
+        if (optionalPacienteDtoExisting.isPresent() && !optionalPacienteDtoExisting.get().equals(existingPaciente)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Paciente with DNI already exists");
         }
 
-        return "Paciente Ya existe";
+        existingPaciente.setApellido(pacienteExistt.getApellido());
+        existingPaciente.setNombre(pacienteExistt.getNombre());
+        existingPaciente.setDomicilio(pacienteExistt.getDomicilio());
+        existingPaciente.setDniPaciente(pacienteExistt.getDniPaciente());
+        existingPaciente.setLocalidad(pacienteExistt.getLocalidad());
+        existingPaciente.setCelular(pacienteExistt.getCelular());
+        existingPaciente.setProvincia(pacienteExistt.getProvincia());
+        existingPaciente.setEmail(pacienteExistt.getEmail());
+        existingPaciente.setTelefono(pacienteExistt.getTelefono());
+
+        pacienteRepository.save(existingPaciente);
+
+        return "Paciente actualizado correctamente";
     }
+
     @Override
     public void eliminarPaciente(int dni) {
         Optional<pacientes> optionalPaciente = pacienteRepository.findByDniPaciente(dni);
-        if (optionalPaciente.isPresent()) {
-            pacienteRepository.deleteById(optionalPaciente.get().getId());
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Paciente with DNI " + dni + " not found");
+
+        pacientes existspaciente = optionalPaciente.orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND , "Paciente with DNI NOT FOUND"));
+
+        pacienteRepository.deleteById(existspaciente.getId());
         }
     }
 
@@ -117,7 +119,9 @@ public class PacienteServiceImpl implements I_PacienteService {
 
 
 
-}
+
+
+
 
 
 
